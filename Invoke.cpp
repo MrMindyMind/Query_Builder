@@ -32,6 +32,7 @@ int Invoke::callNative(const PAWN::Native * native, ...)
 	}
 
 	unsigned int amx_addr = amx_map[native->name], count = strlen(native->data), variables = 0;
+	bool varArgs = false;
 	cell * params = new cell[count + 1], * physAddr[6];
 	params[0] = count * sizeof(cell);
 	va_list input;
@@ -99,7 +100,7 @@ int Invoke::callNative(const PAWN::Native * native, ...)
 
 				// resize the params array
 
-				cell * tmpParams = new cell[count + 1], * physAddr[6];
+				cell * tmpParams = new cell[count + 1];
 				memcpy(tmpParams, params, (count + 1) * sizeof(cell));
 
 				delete[] params;
@@ -107,30 +108,41 @@ int Invoke::callNative(const PAWN::Native * native, ...)
 
 				params[0] = count * sizeof(cell);
 
-				std::string destStr;
-
-				for (int j = 0; j < len; j++, i++)
+				if (variableParams != nullptr)
 				{
-					switch (strList[j])
+					varArgs = true;
+
+					std::string destStr;
+
+					for (int j = 0; j < len; j++, i++)
 					{
-					case 'i':
-					case 'd':
-						params[i + 1] = (cell) variableParams[j];
-						break;
-					case 'f':
-						params[i + 1] = amx_ftoc(variableParams[j]);
-						break;
-					case 'b':
-						params[i + 1] = (cell) variableParams[j];
-						break;
-					case 's':
-						Utilities::GetPawnString(amx, variableParams[j], destStr, 128);
+						switch (strList[j])
+						{
+						case 'i':
+						case 'd':
+							params[i + 1] = (cell) variableParams[j];
+							break;
+						case 'f':
+							params[i + 1] = amx_ftoc(variableParams[j]);
+							break;
+						case 'b':
+							params[i + 1] = (cell) variableParams[j];
+							break;
+						case 's':
+							Utilities::GetPawnString(amx, variableParams[j], destStr);
 
-						amx_Allot(amx_list.front(), destStr.length() + 1, &params[i + 1], &physAddr[variables++]);
-						amx_SetString(physAddr[variables - 1], destStr.c_str(), 0, 0, destStr.length() + 1);
+							amx_Allot(amx_list.front(), destStr.length() + 1, &params[i + 1], &physAddr[variables++]);
+							amx_SetString(physAddr[variables - 1], destStr.c_str(), 0, 0, destStr.length() + 1);
 
-						break;
+							break;
+						}
 					}
+
+					// incrementing variables to make sure it goes through the list.
+					// at this point where this is being incremented it shouldn't brake anything since it should've passed through all
+					// variables.
+					// variables is being reset later so this is okay.
+					variables++;
 				}
 
 				// stop the loop.
@@ -178,19 +190,24 @@ int Invoke::callNative(const PAWN::Native * native, ...)
 				break;
 				case 'l':
 				{
+					amx_Release(amx_list.front(), params[i + 1]);
+
 					char * strList = va_arg(input, char *);
 
-					int len = strlen(strList);
-
-					i++;
-
-					for (int j = 0; j < len; j++, i++)
+					if (varArgs)
 					{
-						switch (strList[j])
+						int len = strlen(strList);
+
+						i++;
+
+						for (int j = 0; j < len; j++, i++)
 						{
-						case 's':
-							amx_Release(amx_list.front(), params[i + 1]);
-							break;
+							switch (strList[j])
+							{
+							case 's':
+								amx_Release(amx_list.front(), params[i + 1]);
+								break;
+							}
 						}
 					}
 

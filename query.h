@@ -10,10 +10,11 @@
 
 class Query
 {
-	std::string m_strQuery;
-	std::string m_strCondition;
 
 private:
+
+	std::string m_strQuery;
+	std::string m_strCondition;
 
 	cell m_nConnectionHandle;
 

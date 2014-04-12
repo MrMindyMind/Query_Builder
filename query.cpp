@@ -91,7 +91,7 @@ void Query::Update(std::string field, std::string entry)
 void Query::AddCondition(void)
 {
 	// Delete last comma
-	if (GetQueryType() == _QB_QUERY_TYPE_UPDATE)
+	if (m_nType == _QB_QUERY_TYPE_UPDATE)
 		m_strQuery.pop_back();
 
 	if (!m_strCondition.empty())

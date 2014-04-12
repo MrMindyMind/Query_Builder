@@ -166,7 +166,7 @@ cell AMX_NATIVE_CALL Natives::QueryBuilder_UpdateString(AMX* amx, cell* params)
 		p_cQuery->Update(strField, strEntry);
 	}
 	else
-		logprintf("Query Builder: invalid query handle.");
+		logprintf("Query Builder: invalid query handle passed to QueryBuilder_UpdateString.");
 
 	return 0;
 }
@@ -182,7 +182,7 @@ cell AMX_NATIVE_CALL Natives::QueryBuilder_UpdateInt(AMX* amx, cell* params)
 
 		Utilities::GetPawnString(amx, params[2], strField);
 
-		p_cQuery->Update(strField, std::to_string((int)params[3]));
+		p_cQuery->Update(strField, std::to_string(static_cast<int>(params[3])));
 	}
 	else
 		logprintf("Query Builder: invalid query handle.");
@@ -294,19 +294,19 @@ cell AMX_NATIVE_CALL Natives::QueryBuilder_Finish(AMX* amx, cell* params)
 			case 2:
 				// Threaded query, parallel (mysql_pquery)
 
+				std::string
+					strCallback,
+					strFormat;
+
+				Utilities::GetPawnString(amx, params[4], strCallback);
+				Utilities::GetPawnString(amx, params[5], strFormat);
+
 				if (size > 0)
 				{
 					cell* variableParams = new cell[size];
 
 					for (int i = 0; i < size; i++)
 						variableParams[i] = params[i + 6];
-
-					std::string
-						strCallback,
-						strFormat;
-
-					Utilities::GetPawnString(amx, params[4], strCallback);
-					Utilities::GetPawnString(amx, params[5], strFormat);
 
 					// Both natives have the EXACT same parameters.
 					g_Invoke->callNative((params[2] == 1) ? (&PAWN::mysql_tquery) : (&PAWN::mysql_pquery), p_cQuery->GetConnectionHandle(), (p_cQuery->GetQuery()).c_str(), strCallback.c_str(), strFormat.c_str(), variableParams, (cell) amx);
@@ -315,6 +315,8 @@ cell AMX_NATIVE_CALL Natives::QueryBuilder_Finish(AMX* amx, cell* params)
 
 					variableParams = nullptr;
 				}
+				else
+					g_Invoke->callNative((params[2] == 1) ? (&PAWN::mysql_tquery) : (&PAWN::mysql_pquery), p_cQuery->GetConnectionHandle(), (p_cQuery->GetQuery()).c_str(), strCallback.c_str(), strFormat.c_str(), nullptr, (cell) amx);
 
 				break;
 			}
