@@ -280,46 +280,43 @@ cell AMX_NATIVE_CALL Natives::QueryBuilder_Finish(AMX* amx, cell* params)
 		// Size should hold all variable parameters excluding the constant ones.
 		int size = params[0]/sizeof(cell) - 5;
 
-		if (p_cQuery != nullptr)
+		switch (params[2])
 		{
-			switch (params[2])
+		case 0:
+			// Regular unthreaded query (mysql_query)
+			return g_Invoke->callNative(&PAWN::mysql_query, p_cQuery->GetConnectionHandle(), (p_cQuery->GetQuery()).c_str(), !!params[3]);
+			break;
+		case 1:
+			// Threaded query (mysql_tquery)
+			// FALLTHROUGH
+		case 2:
+			// Threaded query, parallel (mysql_pquery)
+
+			std::string
+				strCallback,
+				strFormat;
+
+			Utilities::GetPawnString(amx, params[4], strCallback);
+			Utilities::GetPawnString(amx, params[5], strFormat);
+
+			if (size > 0)
 			{
-			case 0:
-				// Regular unthreaded query (mysql_query)
-				return g_Invoke->callNative(&PAWN::mysql_query, p_cQuery->GetConnectionHandle(), (p_cQuery->GetQuery()).c_str(), !!params[3]);
-				break;
-			case 1:
-				// Threaded query (mysql_tquery)
-				// FALLTHROUGH
-			case 2:
-				// Threaded query, parallel (mysql_pquery)
+				cell* variableParams = new cell[size];
 
-				std::string
-					strCallback,
-					strFormat;
+				for (int i = 0; i < size; i++)
+					variableParams[i] = params[i + 6];
 
-				Utilities::GetPawnString(amx, params[4], strCallback);
-				Utilities::GetPawnString(amx, params[5], strFormat);
+				// Both natives have the EXACT same parameters.
+				g_Invoke->callNative((params[2] == 1) ? (&PAWN::mysql_tquery) : (&PAWN::mysql_pquery), p_cQuery->GetConnectionHandle(), (p_cQuery->GetQuery()).c_str(), strCallback.c_str(), strFormat.c_str(), variableParams, (cell) amx);
 
-				if (size > 0)
-				{
-					cell* variableParams = new cell[size];
+				delete[] variableParams;
 
-					for (int i = 0; i < size; i++)
-						variableParams[i] = params[i + 6];
-
-					// Both natives have the EXACT same parameters.
-					g_Invoke->callNative((params[2] == 1) ? (&PAWN::mysql_tquery) : (&PAWN::mysql_pquery), p_cQuery->GetConnectionHandle(), (p_cQuery->GetQuery()).c_str(), strCallback.c_str(), strFormat.c_str(), variableParams, (cell) amx);
-
-					delete[] variableParams;
-
-					variableParams = nullptr;
-				}
-				else
-					g_Invoke->callNative((params[2] == 1) ? (&PAWN::mysql_tquery) : (&PAWN::mysql_pquery), p_cQuery->GetConnectionHandle(), (p_cQuery->GetQuery()).c_str(), strCallback.c_str(), strFormat.c_str(), nullptr, (cell) amx);
-
-				break;
+				variableParams = nullptr;
 			}
+			else
+				g_Invoke->callNative((params[2] == 1) ? (&PAWN::mysql_tquery) : (&PAWN::mysql_pquery), p_cQuery->GetConnectionHandle(), (p_cQuery->GetQuery()).c_str(), strCallback.c_str(), strFormat.c_str(), nullptr, (cell) amx);
+
+			break;
 		}
 
 		for (auto it = g_queryVec.begin(); it != g_queryVec.end(); it++)
