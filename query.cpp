@@ -28,7 +28,7 @@ void Query::Insert(std::string field, std::string value)
 	{
 		if (!fieldPos)
 		{
-			fieldPos = m_strQuery.length() - 11;
+			fieldPos = m_strQuery.length() - strlen(") VALUES ()");
 			valuePos = m_strQuery.length() - 1;
 		}
 
@@ -99,14 +99,14 @@ void Query::AddSelect(const std::string& field)
 	}
 	else
 	{
-		m_strQuery.insert(7 + length, "`" + field + "`,");
+		m_strQuery.insert(strlen("SELECT ") + length, "`" + field + "`,");
 		length += field.length() + 3;
 	}
 }
 
 void Query::AddSelect(void)
 {
-	m_strQuery.insert(7, "*");
+	m_strQuery.insert(strlen("SELECT "), "*");
 }
 
 void Query::AddCondition(void)
@@ -203,57 +203,3 @@ void inline Query::InitQuery(int type, const std::string& table) {
 		break;
 	}
 }
-
-// Just in case i ever need this...
-
-	// Scan for multiple tables.
-
-	/*unsigned int 
-		index	= 0,
-		tables	= 0,
-		i		= 0;
-
-	// Trim any spaces and seperate tables (by commas).
-	for (auto it = strTables.begin(); it != strTables.end(); it++, i++)
-	{
-		if (*it == ' ')
-		{
-			it = strTables.erase(it);
-			it--;
-			i--;
-		}
-		else if (*it == ',')
-		{
-			m_strQuery.append(strTables, index, (i-index));
-			m_strQuery += ("`,`");
-
-			index = i+1;
-
-			tables++;
-		}
-	}
-
-
-	if (tables)
-	{
-		m_strQuery.append(strTables, index, (i-index));
-		m_multiTables = true;
-	}
-	else
-	{
-		m_strQuery += strTables;
-		m_multiTables = false;
-	}
-
-	m_strQuery += ("` SET ");*/
-
-	/*if (m_multiTables)
-	{
-		if (!table.empty())
-			m_strQuery.append('`' + table += "`.`" + field + "`='" + entry + "',");
-		else
-			m_multiTables = false;
-	}
-
-	if (!m_multiTables)
-		m_strQuery.append('`' + field + "`='" + entry + "'");*/

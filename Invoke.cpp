@@ -23,7 +23,6 @@
 #include "utils.h"
 
 Invoke * g_Invoke;
-extern logprintf_t logprintf;
 
 int Invoke::callNative(const PAWN::Native * native, ...)
 {
@@ -81,7 +80,7 @@ int Invoke::callNative(const PAWN::Native * native, ...)
 			}
 			break;
 			// Special refrence array/string where the destination is NOT followed by the size!
-			// However, the string passed to this method MUST be followed by size!
+			// However, the string passed to this method MUST be followed by size! (e.g. mysql_escape_string)
 			case 'r':
 			{
 				va_arg(input, void *);
@@ -89,6 +88,10 @@ int Invoke::callNative(const PAWN::Native * native, ...)
 				amx_Allot(amx_list.front(), size, &params[i + 1], &physAddr[variables++]);
 			}
 			break;
+			/*
+				Since invoke does not nativley support this kind of behaviour I have implemented my own way to do this.
+				This parameter type is the format for calling a function with variable number of parameters.
+			*/
 			case 'l': // list of variables.
 			{
 				char * strList = va_arg(input, char *);
