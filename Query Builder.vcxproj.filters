@@ -30,6 +30,15 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\m_ini\SDK\plugincommon.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\m_ini\SDK\amx\amx.h">
+      <Filter>SDK\amx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\m_ini\SDK\amx\sclinux.h">
+      <Filter>SDK\amx</Filter>
+    </ClInclude>
     <ClInclude Include="plugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -45,15 +54,6 @@
     <ClInclude Include="Invoke.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SDK\plugincommon.h">
-      <Filter>SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="SDK\amx\amx.h">
-      <Filter>SDK\amx</Filter>
-    </ClInclude>
-    <ClInclude Include="SDK\amx\sclinux.h">
-      <Filter>SDK\amx</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="querybuilder.def">
@@ -61,6 +61,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\m_ini\SDK\amxplugin.cpp">
+      <Filter>SDK</Filter>
+    </ClCompile>
     <ClCompile Include="plugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -75,9 +78,6 @@
     </ClCompile>
     <ClCompile Include="Invoke.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SDK\amxplugin.cpp">
-      <Filter>SDK</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

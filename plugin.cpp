@@ -21,20 +21,16 @@ Incognito - Original Invoke.cpp & Invoke.h
 */
 
 #include <vector>
-
 #include "plugin.h"
 #include "query.h"
 #include "natives.h"
 #include "invoke.h"
 
-void 
-    **ppPluginData;
+void **ppPluginData;
 
-logprintf_t 
-    logprintf;
+logprintf_t logprintf;
 
-std::vector<Query*>
-	g_queryVec;
+std::vector<Query*> g_queryVec;
 
 PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() 
 {
@@ -45,8 +41,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 {
     pAMXFunctions	= ppData[PLUGIN_DATA_AMX_EXPORTS];
     logprintf		= (logprintf_t) ppData[PLUGIN_DATA_LOGPRINTF];
-
-	g_Invoke = new Invoke;
+	g_Invoke		= new Invoke;
 
     logprintf("* Query Builder plugin by Maxi loaded successfuly.");
     return true;
@@ -54,6 +49,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 
 PLUGIN_EXPORT void PLUGIN_CALL Unload()
 {
+	// Delete all queries.
 	for (auto it = g_queryVec.begin(); it != g_queryVec.end(); it++)
 		delete *it;
 
@@ -64,18 +60,23 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload()
 
 AMX_NATIVE_INFO PluginNatives[] =
 {
-	{"QueryBuilder_Update",				Natives::QueryBuilder_Update},
-	{"QueryBuilder_Finish",				Natives::QueryBuilder_Finish},
-	{"QueryBuilder_PrintQuery",			Natives::QueryBuilder_PrintQuery},
-	{"QueryBuilder_UpdateString",		Natives::QueryBuilder_UpdateString},
-	{"QueryBuilder_UpdateInt",			Natives::QueryBuilder_UpdateInt},
-	{"QueryBuilder_UpdateFloat",		Natives::QueryBuilder_UpdateFloat},
-	{"QueryBuilder_MultiUpdate",		Natives::QueryBuilder_MultiUpdate},
-	{"QueryBuilder_QueryLen",			Natives::QueryBuilder_QueryLen},
-	{"QueryBuilder_Insert",				Natives::QueryBuilder_Insert},
-	{"QueryBuilder_Delete",				Natives::QueryBuilder_Delete},
-	{"_QB_Invoke_GetAddresses",			Natives::_QB_Invoke_GetAddresses},
-    {0, 0}
+	{"QueryBuilder_Update",			Natives::QueryBuilder_Update},
+	{"QueryBuilder_Finish",			Natives::QueryBuilder_Finish},
+	{"QueryBuilder_PrintQuery",		Natives::QueryBuilder_PrintQuery},
+	{"QueryBuilder_UpdateString",	Natives::QueryBuilder_UpdateString},
+	{"QueryBuilder_UpdateInt",		Natives::QueryBuilder_UpdateInt},
+	{"QueryBuilder_UpdateFloat",	Natives::QueryBuilder_UpdateFloat},
+	{"QueryBuilder_MultiUpdate",	Natives::QueryBuilder_MultiUpdate},
+	{"QueryBuilder_QueryLen",		Natives::QueryBuilder_QueryLen},
+	{"QueryBuilder_Insert",			Natives::QueryBuilder_Insert},
+	{"QueryBuilder_Delete",			Natives::QueryBuilder_Delete},
+	{"QueryBuilder_Query",			Natives::QueryBuilder_Query},
+	{"QueryBuilder_Select",			Natives::QueryBuilder_Select},
+	{"QueryBuilder_Build",			Natives::QueryBuilder_Build},
+	{"QueryBuilder_GetQuery",		Natives::QueryBuilder_GetQuery},
+	{"_QB_Invoke_GetAddresses",		Natives::_QB_Invoke_GetAddresses},
+	{"_QB_SetMaxLengths",			Natives::_QB_SetMaxLengths},
+    {NULL,							NULL}
 };
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad( AMX *amx ) 

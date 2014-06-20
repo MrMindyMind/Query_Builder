@@ -39,12 +39,14 @@ namespace PAWN
 	{
 		"mysql_query",
 		"mysql_tquery",
-		"mysql_pquery"
+		"mysql_pquery",
+		"mysql_escape_string",
 	};
 	// a_mysql.inc (BlueG)
-	static const Native mysql_query	=						{ "mysql_query",						"isb"};
-	static const Native mysql_tquery =						{ "mysql_tquery",						"isslax"};
-	static const Native mysql_pquery =						{ "mysql_pquery",						"isslax"};
+	static const Native mysql_query	=			{ "mysql_query",			"isb"};
+	static const Native mysql_tquery =			{ "mysql_tquery",			"isslax"};
+	static const Native mysql_pquery =			{ "mysql_pquery",			"isslax"};
+	static const Native mysql_escape_string =	{ "mysql_escape_string",	"srii"};
 };
 
 class

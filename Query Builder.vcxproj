@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -20,13 +20,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -82,13 +82,13 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\m_ini\SDK\amx\amx.h" />
+    <ClInclude Include="..\m_ini\SDK\amx\sclinux.h" />
+    <ClInclude Include="..\m_ini\SDK\plugincommon.h" />
     <ClInclude Include="Invoke.h" />
     <ClInclude Include="natives.h" />
     <ClInclude Include="plugin.h" />
     <ClInclude Include="query.h" />
-    <ClInclude Include="SDK\amx\amx.h" />
-    <ClInclude Include="SDK\amx\sclinux.h" />
-    <ClInclude Include="SDK\plugincommon.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="utils.h" />
@@ -97,11 +97,11 @@
     <None Include="querybuilder.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\m_ini\SDK\amxplugin.cpp" />
     <ClCompile Include="Invoke.cpp" />
     <ClCompile Include="natives.cpp" />
     <ClCompile Include="plugin.cpp" />
     <ClCompile Include="query.cpp" />
-    <ClCompile Include="SDK\amxplugin.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
