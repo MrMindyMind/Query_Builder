@@ -25,6 +25,19 @@ LICENSES:
 	#define _QB_H
 #endif
 
+#if !defined QB_MAX_FIELD_LEN
+	#define QB_MAX_FIELD_LEN (32)
+#endif
+
+#if !defined QB_MAX_ENTRY_LEN
+	#define QB_MAX_ENTRY_LEN (128)
+#endif
+
+#if !defined QB_MAX_SELECT_FIELDS_LEN
+	#define QB_MAX_SELECT_FIELDS_LEN (256)
+#endif
+
+
 enum e_QB_QUERY_TYPE
 {
 	query_type_default,
@@ -40,7 +53,7 @@ enum e_QB_QUERY_TYPE
 Description: Start updating a specific table.
 Parameters:
 	table[] - the name of the table to update.
-	condition[] - the condition that needs to met in order to execute the update (if left null will be ignored)
+	condition[] - the condition that needs to be met in order to execute the update (if left null will be ignored)
 	connectionHandle - on which connection to execute the query (default: 1)
 */
 native Query:QueryBuilder_Update(table[], condition[] = "", connectionHandle = 1);
@@ -50,27 +63,27 @@ Description: Update a string
 Parameters:
 	Query:queryhandle - which query to update on.
 	field[] - filed to update
-	str[] - the new string to apply
+	str[] - new string to apply
 */
-native Query:QueryBuilder_UpdateString(Query:queryhandle, field[], str[]);
+native QueryBuilder_UpdateString(Query:queryhandle, field[], str[]);
 
 /*
 Description: Update an int value
 Parameters:
 	Query:queryhandle - which query to update on.
 	field[] - filed to update
-	value - value to apply.
+	value - new value to apply.
 */
-native Query:QueryBuilder_UpdateInt(Query:queryhandle, field[], value);
+native QueryBuilder_UpdateInt(Query:queryhandle, field[], value);
 
 /*
 Description: Update a float value
 Parameters:
 	Query:queryhandle - which query to update on.
 	field[] - filed to update
-	Float:value - value to apply.
+	Float:value - new float value to apply.
 */
-native Query:QueryBuilder_UpdateFloat(Query:queryhandle, field[], Float:value);
+native QueryBuilder_UpdateFloat(Query:queryhandle, field[], Float:value);
 
 /*
 Description: Finish updating.
@@ -78,9 +91,9 @@ Parameters:
 	Query:queryhandle - which query to send.
 	query_type - type of query: default (non-threaded), threaded, parallel (threaded)
 	bool: use_cache - enable cache or not (only relevant when using default query)
-	callback[] - callback to pass the result to (only relevant when using threaded/parallel query)
-	format[] - variable parameters format (only relevant when using threaded/parallel query)
-	{Float,_}:... - variable parameters to pass to callback (only relevant when using threaded/parallel query)
+	callback[] - callback to pass the result to
+	format[] - variable parameters format (must be correct otherwise wierd behaviour can occur)
+	{Float,_}:... - variable parameters to pass to callback
 */
 native Cache:QueryBuilder_Finish(Query:queryhandle, e_QB_QUERY_TYPE: query_type, bool: use_cache = true, callback[] = "", format[] = "", {Float,_}:...);
 
@@ -88,7 +101,7 @@ native Cache:QueryBuilder_Finish(Query:queryhandle, e_QB_QUERY_TYPE: query_type,
 Description: Update multiple fields at once.
 Parameters:
 	Query:queryhandle - which query to send.
-	fmat[] - query format
+	fmat[] - query format (must be correct otherwise wierd behaviour can occur)
 	    - 'i', 'd' - integers.
 	    - 'f' - floats.
 	    - 's' - strings.
@@ -97,7 +110,7 @@ Parameters:
 native QueryBuilder_MultiUpdate(Query:query, fmat[], {Float,_}:...);
 
 /*
-Description: Get length of current query that is being built.
+Description: Get length of query that is being built.
 Parameters:
 	Query:queryhandle - query handle.
 */
@@ -108,7 +121,7 @@ Description: Insert a new row to a table.
 Parameters:
 	connectionHandle - connection handle to run the query on.
 	table[] - table to insert to.
-	fmat[] - insert format
+	fmat[] - insert format (must be correct otherwise wierd behaviour can occur)
 	    - 'i', 'd' - integers.
 	    - 'f' - floats.
 	    - 's' - strings.
@@ -132,13 +145,52 @@ Description: Print query
 Parameters:
 	Query:queryhandle - query to print
 */
-native QueryBuilder_PrintQuery(Query:query);
+native QueryBuilder_PrintQuery(Query:queryhandle);
 
 /*
-Description: Get native addresses, internal use.. do not use.
+Description: Get query
+Parameters:
+	Query:queryhandle - query to get.
+	dest[] - destionation to store the query.
+	maxlength = maximum length of the query.
+*/
+native QueryBuilder_GetQuery(Query:queryhandle, dest[], maxlength = sizeof(dest));
+
+/*
+Description: Start building a new query
+Parameters:
+	connectionHandle: connection handle to use for the query.
+*/
+native Query:QueryBuilder_Build(connectionHandle = 1);
+
+/*
+Description: Append to current query.
+Parameters:
+	Query:queryhandle - query to append.
+	query - query to append.
+*/
+native QueryBuilder_Query(Query:queryhandle, const query[]);
+
+/*
+Description: Select fields to load from a table.
+Parameters:
+	table[] - table to load from
+	fields[] - fields to load (leaving this parameter null with load all fields)
+	condition[] - condition for selecting
+	connectionHandle - connection handle to run the query on.
+*/
+native Query:QueryBuilder_Select(const table[], const fields[] = "", const condition[] = "", connectionHandle = 1);
+
+/*
+Description: Get native addresses for invoke function, internal use.
 */
 
 native _QB_Invoke_GetAddresses();
+
+/*
+Description: Set max length for field, entry and insert fields (used with Utilities::GetPawnString).
+*/
+native _QB_SetMaxLengths(field, entry, fields);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Invoke & Hooking
@@ -147,12 +199,20 @@ native _QB_Invoke_GetAddresses();
 forward _QB_Invoke();
 public _QB_Invoke()
 {
+	new
+	    _strUnused[2];
+	    
 	// a_mysql
 	mysql_query(0, "", false);
 	mysql_tquery(0, "", "", "");
 	mysql_pquery(0, "", "", "");
+ 	mysql_escape_string("", _strUnused, 0, sizeof(_strUnused));
 
-    _QB_Invoke_GetAddresses();
+    if (!_QB_Invoke_GetAddresses())
+        printf("QueryBuilder Error: Couldn't obtain addresses with _QB_Invoke_GetAddresses.");
+        
+    // +1 for null terminators.
+    _QB_SetMaxLengths(QB_MAX_FIELD_LEN + 1, QB_MAX_ENTRY_LEN + 1, QB_MAX_SELECT_FIELDS_LEN + 1);
 
 	return 1;
 }
